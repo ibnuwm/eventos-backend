@@ -9,15 +9,16 @@ use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\ClientPortalController;
 use App\Http\Controllers\Api\V1\InnovationController;
 use App\Http\Controllers\Api\V1\MonopolyKingController;
+use App\Http\Controllers\Api\V1\LeadsController;
+use App\Http\Controllers\Api\V1\ProjectsController;
+use App\Http\Controllers\Api\V1\QuotationsController;
+use App\Http\Controllers\Api\V1\RundownController;
+use App\Http\Controllers\Api\V1\ChatController;
+use App\Http\Controllers\Api\V1\InventoryController;
+use App\Http\Controllers\Api\V1\StaffController;
 use App\Services\AiProjectManagerService;
 use App\Services\KnowledgeBaseRagService;
 use Illuminate\Http\Request;
-
-/*
-|--------------------------------------------------------------------------
-| API Routes - Vendor Event OS (EventOS.id) Backend v12.0
-|--------------------------------------------------------------------------
-*/
 
 Route::prefix('v1')->group(function () {
     // 1. Executive Dashboard Overview
@@ -39,7 +40,7 @@ Route::prefix('v1')->group(function () {
         return response()->json(['status' => 'success', 'data' => $plan]);
     });
 
-    // 4. Improvement #8: Knowledge Base AI
+    // 4. Knowledge Base AI
     Route::post('/ai/knowledge-base/query', function (Request $request, KnowledgeBaseRagService $rag) {
         $res = $rag->queryKnowledgeBase(
             $request->header('X-Tenant-ID', 'tenant-demo-uuid'),
@@ -61,6 +62,40 @@ Route::prefix('v1')->group(function () {
     Route::post('/webhooks/whatsapp', [WebhookController::class, 'whatsappCallback']);
 
     // =========================================================================
+    // CRUD OPERASIONAL MODUL
+    // =========================================================================
+
+    // Leads
+    Route::get('/leads', [LeadsController::class, 'index']);
+    Route::patch('/leads/{id}/status', [LeadsController::class, 'updateStatus']);
+
+    // Projects & Tasks
+    Route::get('/projects', [ProjectsController::class, 'index']);
+    Route::patch('/projects/tasks/{taskId}/toggle', [ProjectsController::class, 'toggleTask']);
+
+    // Quotations
+    Route::get('/quotations', [QuotationsController::class, 'index']);
+    Route::patch('/quotation-items/{itemId}/toggle', [QuotationsController::class, 'toggleItem']);
+    Route::post('/quotation-items', [QuotationsController::class, 'addItem']);
+    Route::post('/quotations/{id}/lock', [QuotationsController::class, 'lockQuotation']);
+    Route::get('/quotations/{id}/export', [QuotationsController::class, 'exportQuotation']);
+    Route::post('/quotations/{id}/send-wa', [QuotationsController::class, 'sendQuotationWa']);
+
+    // Rundown
+    Route::get('/rundown-items', [RundownController::class, 'index']);
+    Route::post('/rundown-items', [RundownController::class, 'store']);
+
+    // Chat
+    Route::get('/messages', [ChatController::class, 'index']);
+    Route::post('/messages', [ChatController::class, 'store']);
+
+    // Inventory
+    Route::get('/inventory-items', [InventoryController::class, 'index']);
+
+    // Staff
+    Route::get('/staff-crews', [StaffController::class, 'index']);
+
+    // =========================================================================
     // STAGE 1 CATEGORY KING 6 INNOVATIONS
     // =========================================================================
     Route::prefix('innovations')->group(function () {
@@ -73,7 +108,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // =========================================================================
-    // STAGE 2 CATEGORY MONOPOLY KING 5 BREAKTHROUGHS
+    // STAGE 2 MONOPOLY KING 5 BREAKTHROUGHS
     // =========================================================================
     Route::prefix('monopoly')->group(function () {
         Route::post('/capital/disburse', [MonopolyKingController::class, 'disburseCapital']);
