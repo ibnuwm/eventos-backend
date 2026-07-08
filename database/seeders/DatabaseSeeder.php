@@ -14,6 +14,36 @@ class DatabaseSeeder extends Seeder
         $now = now();
 
         // ====================================================================
+        // APPROVAL TOKENS
+        // ====================================================================
+        DB::table('approval_tokens')->insert([
+            [
+                'id' => 'at-1',
+                'tenant_id' => $tenantId,
+                'project_id' => 'proj-1',
+                'client_name' => 'Anisa & Budi',
+                'client_whatsapp' => '0812-8899-1234',
+                'token' => 'demo-token-royal-wedding-abc123def456',
+                'approved_documents' => json_encode(['3D_LAYOUT']),
+                'expires_at' => now()->addDays(7),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'id' => 'at-2',
+                'tenant_id' => $tenantId,
+                'project_id' => 'proj-1',
+                'client_name' => 'Chikita Meidy & Reza',
+                'client_whatsapp' => '0812-8899-4321',
+                'token' => 'demo-token-chikita-reza-xyz789abc012',
+                'approved_documents' => json_encode([]),
+                'expires_at' => now()->addDays(7),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ]);
+
+        // ====================================================================
         // TENANT & USER
         // ====================================================================
         DB::table('tenants')->insert([

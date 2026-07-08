@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\V1\MarketplaceController;
 use App\Http\Controllers\Api\V1\FileController;
 use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\ClientPortalController;
+use App\Http\Controllers\Api\V1\ClientPortalTokenController;
+use App\Http\Controllers\Api\V1\VendorStorefrontController;
 use App\Http\Controllers\Api\V1\InnovationController;
 use App\Http\Controllers\Api\V1\MonopolyKingController;
 use App\Http\Controllers\Api\V1\LeadsController;
@@ -58,20 +60,49 @@ Route::prefix('v1')->group(function () {
     // 7. Client Portal E-Signature
     Route::post('/client-portal/approve', [ClientPortalController::class, 'approveDocument']);
 
+    // 7b. Client Portal Token-Based Access (Magic Link)
+    Route::post('/client-portal/generate-link', [ClientPortalTokenController::class, 'generateLink']);
+    Route::get('/client-portal/token/{token}/verify', [ClientPortalTokenController::class, 'verify']);
+    Route::post('/client-portal/token/{token}/approve', [ClientPortalTokenController::class, 'approveDocument']);
+
     // 8. WhatsApp-Native Webhook
     Route::post('/webhooks/whatsapp', [WebhookController::class, 'whatsappCallback']);
+
+    // =========================================================================
+    // PUBLIC STOREFRONT (No X-Tenant-ID required - public access)
+    // =========================================================================
+    Route::get('/storefront/vendors', [VendorStorefrontController::class, 'index']);
+    Route::get('/storefront/vendors/{id}', [VendorStorefrontController::class, 'show']);
 
     // =========================================================================
     // CRUD OPERASIONAL MODUL
     // =========================================================================
 
+    // Tenant info (subscription tier)
+    Route::get('/tenant', function (\Illuminate\Http\Request $request) {
+        $tenantId = $request->header('X-Tenant-ID', 'tenant-demo-uuid');
+        $tenant = \Illuminate\Support\Facades\DB::table('tenants')->where('id', $tenantId)->first();
+        if (!$tenant) {
+            return response()->json(['status' => 'error', 'message' => 'Tenant not found'], 404);
+        }
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'id' => $tenant->id,
+                'company_name' => $tenant->company_name,
+                'domain_slug' => $tenant->domain_slug,
+                'subscription_tier' => $tenant->subscription_tier,
+            ],
+        ]);
+    });
+
     // Leads
     Route::get('/leads', [LeadsController::class, 'index']);
     Route::patch('/leads/{id}/status', [LeadsController::class, 'updateStatus']);
 
-    // Projects & Tasks
-    Route::get('/projects', [ProjectsController::class, 'index']);
-    Route::patch('/projects/tasks/{taskId}/toggle', [ProjectsController::class, 'toggleTask']);
+    // Projects & Tasks (subscription-gated: basic max 3)
+    Route::get('/projects', [ProjectsController::class, 'index'])->middleware('subscription:basic');
+    Route::patch('/projects/tasks/{taskId}/toggle', [ProjectsController::class, 'toggleTask'])->middleware('subscription:basic');
 
     // Quotations
     Route::get('/quotations', [QuotationsController::class, 'index']);
