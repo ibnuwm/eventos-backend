@@ -3,6 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\AiController;
+use App\Http\Controllers\Api\V1\PaymentController;
+use App\Http\Controllers\Api\V1\GuestRsvpController;
+use App\Http\Controllers\Api\V1\TicketingController;
+use App\Http\Controllers\Api\V1\VendorAuthController;
 use App\Http\Controllers\Api\V1\MarketplaceController;
 use App\Http\Controllers\Api\V1\FileController;
 use App\Http\Controllers\Api\V1\WebhookController;
@@ -148,4 +152,26 @@ Route::prefix('v1')->group(function () {
         Route::post('/stage-command/trigger-cue', [MonopolyKingController::class, 'triggerStageCue']);
         Route::post('/compliance/audit-portfolio', [MonopolyKingController::class, 'auditPortfolio']);
     });
+
+    // Payment Gateway (#2)
+    Route::post('/payments/invoice', [PaymentController::class, 'createInvoicePayment']);
+    Route::post('/payments/simulate', [PaymentController::class, 'simulatePayment']);
+    Route::get('/payments/invoice/{invoiceId}', [PaymentController::class, 'getPaymentStatus']);
+
+    // Guest RSVP (#3)
+    Route::get('/guests', [GuestRsvpController::class, 'index']);
+    Route::post('/guests', [GuestRsvpController::class, 'store']);
+    Route::get('/rsvp/{token}', [GuestRsvpController::class, 'rsvpVerify']);
+    Route::post('/rsvp/{token}', [GuestRsvpController::class, 'rsvpConfirm']);
+
+    // Ticketing (#5) - Public endpoints
+    Route::get('/events', [TicketingController::class, 'listEvents']);
+    Route::get('/events/{eventId}', [TicketingController::class, 'getEvent']);
+    Route::post('/tickets/order', [TicketingController::class, 'createOrder']);
+    Route::get('/tickets/verify/{qrToken}', [TicketingController::class, 'verifyTicket']);
+    Route::post('/tickets/checkin/{qrToken}', [TicketingController::class, 'checkIn']);
+
+    // Vendor Self-Service (#6)
+    Route::post('/vendor/login', [VendorAuthController::class, 'login']);
+    Route::get('/vendor/dashboard', [VendorAuthController::class, 'dashboard']);
 });

@@ -426,5 +426,85 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => $now,
             ],
         ]);
+
+        // ====================================================================
+        // GUESTS (#3)
+        // ====================================================================
+        DB::table('guests')->insert([
+            [
+                'id' => 'g-1',
+                'tenant_id' => $tenantId,
+                'project_id' => 'proj-1',
+                'name' => 'Ibu Sari Dewi',
+                'whatsapp' => '0812-1111-2222',
+                'category' => 'Keluarga',
+                'guest_count' => 3,
+                'rsvp_status' => 'confirmed',
+                'menu_choice' => 'Nasi Goreng Seafood',
+                'table_number' => 'Meja 5',
+                'token' => 'demo-rsvp-ibu-sari',
+                'created_at' => $now, 'updated_at' => $now,
+            ],
+            [
+                'id' => 'g-2',
+                'tenant_id' => $tenantId,
+                'project_id' => 'proj-1',
+                'name' => 'Pak Budi Hartono',
+                'whatsapp' => '0812-3333-4444',
+                'category' => 'VIP',
+                'guest_count' => 2,
+                'rsvp_status' => 'pending',
+                'menu_choice' => null,
+                'table_number' => 'Meja 1',
+                'token' => 'demo-rsvp-pak-budi',
+                'created_at' => $now, 'updated_at' => $now,
+            ],
+            [
+                'id' => 'g-3',
+                'tenant_id' => $tenantId,
+                'project_id' => 'proj-2',
+                'name' => 'Teman Kantor Clara',
+                'whatsapp' => '0812-5555-6666',
+                'category' => 'Umum',
+                'guest_count' => 1,
+                'rsvp_status' => 'declined',
+                'menu_choice' => 'Vegetarian',
+                'table_number' => null,
+                'token' => 'demo-rsvp-teman-clara',
+                'created_at' => $now, 'updated_at' => $now,
+            ],
+        ]);
+
+        // ====================================================================
+        // EVENT TICKETS (#5)
+        // ====================================================================
+        $eventId = 'evt-1';
+        DB::table('event_tickets')->insert([
+            'id' => $eventId,
+            'tenant_id' => $tenantId,
+            'project_id' => 'proj-1',
+            'event_title' => 'Royal Wedding Anisa & Budi - Resepsi',
+            'event_date' => '2026-08-14',
+            'venue' => 'Grand Hotel Ballroom Jakarta',
+            'description' => 'Resepsi pernikahan mewah 800 pax dengan akustik band, live DJ, dan fine dining.',
+            'created_at' => $now, 'updated_at' => $now,
+        ]);
+        DB::table('ticket_tiers')->insert([
+            ['id' => 'tier-1', 'event_ticket_id' => $eventId, 'tier_name' => 'Early Bird', 'price' => 150000, 'quota' => 50, 'sold' => 45, 'created_at' => $now, 'updated_at' => $now],
+            ['id' => 'tier-2', 'event_ticket_id' => $eventId, 'tier_name' => 'Regular', 'price' => 250000, 'quota' => 100, 'sold' => 62, 'created_at' => $now, 'updated_at' => $now],
+            ['id' => 'tier-3', 'event_ticket_id' => $eventId, 'tier_name' => 'VIP (All-Inclusive)', 'price' => 500000, 'quota' => 30, 'sold' => 28, 'created_at' => $now, 'updated_at' => $now],
+        ]);
+        DB::table('ticket_orders')->insert([
+            'id' => 'to-1',
+            'tier_id' => 'tier-1',
+            'buyer_name' => 'Rina Amelia',
+            'buyer_email' => 'rina@gmail.com',
+            'buyer_whatsapp' => '0812-7777-8888',
+            'quantity' => 2,
+            'total' => 300000,
+            'status' => 'paid',
+            'qr_token' => 'demo-qr-rina-amelia-abc123',
+            'created_at' => $now, 'updated_at' => $now,
+        ]);
     }
 }
